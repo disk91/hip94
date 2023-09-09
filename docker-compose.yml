@@ -9,7 +9,7 @@ services:
       - /helium-etl/hip94-run/mongo_data:/data/db
       - /helium-etl/hip94-run/mongo_dump:/dump
     networks:
-      - monitoring_net
+      - public_net
       - hip94_net
 
   hip94:
