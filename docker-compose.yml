@@ -8,6 +8,10 @@ services:
     volumes:
       - /helium-etl/mongo_data:/data/db
       - /helium-etl/mongo_dump:/dump
+    networks:
+      - monitoring_net
+      - mongo_net
+
   hip94:
     image: disk91/hip94
     container_name: hip94
@@ -20,9 +24,17 @@ services:
     environment:
       - AWS_ACCESS_KEY=
       - AWS_SECRET_KEY=
+      - MONGO_COLLECTION=helium-hip94-cfe
       - ETL_SERVER=foo.bar
     mem_limit: 8000m
     logging: &logs
       driver: "json-file"
       options:
         max-size: "100m"
+    networks:
+      - mongo_net
+
+networks:
+  public_net:
+  mongo_net:
+    internal: true
