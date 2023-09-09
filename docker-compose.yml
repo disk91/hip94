@@ -1,0 +1,28 @@
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongo-std-1
+    ports:
+      - 127.0.0.1:27717:27017
+    restart: unless-stopped
+    volumes:
+      - /helium-etl/mongo_data:/data/db
+      - /helium-etl/mongo_dump:/dump
+  hip94:
+    image: disk91/hip94
+    container_name: hip94
+    restart: unless-stopped
+    volumes:
+      - /helium-etl/hip94/cache-files:/files
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      - AWS_ACCESS_KEY=
+      - AWS_SECRET_KEY=
+      - ETL_SERVER=foo.bar
+    mem_limit: 8000m
+    logging: &logs
+      driver: "json-file"
+      options:
+        max-size: "100m"
