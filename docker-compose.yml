@@ -38,6 +38,7 @@ services:
       options:
         max-size: "100m"
     networks:
+      - public_net
       - hip94_net
 
 networks:
