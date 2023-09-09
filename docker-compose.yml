@@ -6,18 +6,18 @@ services:
       - 127.0.0.1:27717:27017
     restart: unless-stopped
     volumes:
-      - /helium-etl/mongo_data:/data/db
-      - /helium-etl/mongo_dump:/dump
+      - /helium-etl/hip94-run/mongo_data:/data/db
+      - /helium-etl/hip94-run/mongo_dump:/dump
     networks:
       - monitoring_net
-      - mongo_net
+      - hip94_net
 
   hip94:
     image: disk91/hip94
     container_name: hip94
     restart: unless-stopped
     volumes:
-      - /helium-etl/hip94/cache-files:/files
+      - /helium-etl/hip94-run/cache-files:/files
     depends_on:
       mongo:
         condition: service_healthy
@@ -32,9 +32,9 @@ services:
       options:
         max-size: "100m"
     networks:
-      - mongo_net
+      - hip94_net
 
 networks:
   public_net:
-  mongo_net:
+  hip94_net:
     internal: true
