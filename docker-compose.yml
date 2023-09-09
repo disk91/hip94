@@ -25,7 +25,7 @@ services:
       - AWS_ACCESS_KEY=
       - AWS_SECRET_KEY=
       - MONGO_COLLECTION=helium-hip94-cfe
-      - ETL_SERVER=foo.bar
+      - ETL_SERVER=https://foo.bar
     mem_limit: 8000m
     logging: &logs
       driver: "json-file"
