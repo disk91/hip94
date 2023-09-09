@@ -2,6 +2,12 @@ services:
   mongo:
     image: mongo:latest
     container_name: mongo-std-1
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     ports:
       - 127.0.0.1:27717:27017
     restart: unless-stopped
