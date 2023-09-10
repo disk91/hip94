@@ -3,12 +3,12 @@ package com.disk91.hip94.service;
 import com.disk91.hip94.EtlConfig;
 import com.disk91.hip94.data.object.Hotspot;
 import com.disk91.hip94.data.object.Witness;
-import com.disk91.hip94.data.object.sub.RespTimeHist;
 import com.disk91.hip94.data.repository.HotspotsRepository;
 import fr.ingeniousthings.tools.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -79,6 +79,7 @@ public class HotspotService {
                     hs.getPosition().setLng(lng);
                     hs.getPosition().setLastDatePosition(timeRef);
                     hs.getPosition().setH3hex(h3);
+                    hs.setMongoPosition(new GeoJsonPoint(lng,lat));
                 } else {
                     /*
                     if ( this.notFoundHs.get(hotspotId) != null)
@@ -248,6 +249,14 @@ public class HotspotService {
             h.setDensityOver(dO.get());
 
             h.setParticipations(h.getWitnesses().size());
+            if ( h.getCompetitors() != hss.size() ) {
+                // new hotspot detected, rescan the hotspot physically around
+                h.setHotspots1km((int)hotspotsRepository.countByMongoPositionNearbyDistance(h.getPosition().getLng(),h.getPosition().getLat(),1_000));
+                h.setHotspots5km((int)hotspotsRepository.countByMongoPositionNearbyDistance(h.getPosition().getLng(),h.getPosition().getLat(),5_000));
+                h.setHotspots10km((int)hotspotsRepository.countByMongoPositionNearbyDistance(h.getPosition().getLng(),h.getPosition().getLat(),10_000));
+                h.setHotspots10km(h.getHotspots10km()-h.getHotspots5km());
+                h.setHotspots5km(h.getHotspots5km()-h.getHotspots1km());
+            }
             h.setCompetitors(hss.size());
             h.setCurrentSelection(0);
             h.setRandom14Selection(0);
@@ -297,12 +306,35 @@ public class HotspotService {
                     h.setLowCoverage(2);
                 } else {
                     // low coverage hotspot
-                    h.setLowCoverage(1);
+                    if ( h.getHotspots5km()+ h.getHotspots10km() > 0 ) {
+                        // we know some hostpost around exists
+                        h.setLowCoverage(1);
+                    } else {
+                        // we don't know so we can't really measure the coverage
+                        h.setLowCoverage(0);
+                    }
                 }
             } else {
                 // need more data
                 h.setLowCoverage(0);
             }
+
+            h.setUtilCoverage(0);
+            if ( h.getLowCoverage() != 1 ) {
+                if (
+                    // hotspot cover a zone where we don't have other hotspot
+                    ( h.getSeCentering() == 0 || h.getNeCentering() == 0 || h.getNwCentering() == 0 || h.getSwCentering() == 0 )
+                    // hotspot does not have a redundancy around
+                 || ( h.getHotspots5km() < 3)
+                    // @Todo - we could search for hotspot in the quarter to get coverage redundancy instead of unique coverage
+                ) {
+                    h.setUtilCoverage(1);
+                }
+            } else {
+                // low coverage with other hotspot around...
+                h.setUtilCoverage(2);
+            }
+
 
             this.updateHostspot(h);
         } catch ( ITNotFoundException x ) {

@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.ShardingStrategy;
 public class Witness {
 
     protected String hotspotId;
+    protected String h3hex;
 
     protected long hotspotRxTime;     // reception time on hotspot
     protected long heliumRXTime;      // reception time on Oracle
@@ -125,5 +126,13 @@ public class Witness {
 
     public void setDeltaTime(long deltaTime) {
         this.deltaTime = deltaTime;
+    }
+
+    public String getH3hex() {
+        return h3hex;
+    }
+
+    public void setH3hex(String h3hex) {
+        this.h3hex = h3hex;
     }
 }

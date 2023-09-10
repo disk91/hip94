@@ -5,8 +5,11 @@ import com.disk91.hip94.data.object.sub.RespTimeHist;
 import fr.ingeniousthings.tools.Animal;
 import fr.ingeniousthings.tools.ClonnableObject;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
+import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -26,6 +29,10 @@ public class Hotspot implements ClonnableObject<Hotspot> {
     private String animalName;
 
     private LatLng position;
+
+    @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
+    private GeoJsonPoint mongoPosition;
+
     private boolean positionChanged;
 
     private boolean inDenyList;
@@ -42,8 +49,11 @@ public class Hotspot implements ClonnableObject<Hotspot> {
     int centered;   // 0 unknown, 1 true when the hotspot is centered vs excentred
 
     int density1km;     // number of hotspot-beaconing 1km around
+    int hotspots1km;    // number of hotspot 1km around
     int density5km;     // number of hotspot-beaconing 1-5km around
+    int hotspots5km;    // number of hotspot 1km to 5km around
     int density10km;    // number of hotspot-beaconing 5-10km around
+    int hotspots10km;    // number of hotspot 5km to 10km around
     int density30km;    // number of hotspot-beaconing 10-30km around
     int densityOver;    // number of hotspot-beaconing above 30km
 
@@ -56,6 +66,7 @@ public class Hotspot implements ClonnableObject<Hotspot> {
     boolean extendCoverage; // true when the density is mostly more than 10km+ or excentered with 10km+ coverage
 
     int lowCoverage;    // 0 unknown, 1 when true ( no hs above 1km ), 2 when false
+    int utilCoverage;   // 0 unknow, 1 when this HS may add a usefull coverage, 2 when it's not
 
     // selection ratio
     long participations;    // number of participations to PoC
@@ -89,6 +100,7 @@ public class Hotspot implements ClonnableObject<Hotspot> {
         this.position.setLat(0.0);
         this.position.setLng(0.0);
         this.position.setLastDatePosition(0);
+        this.mongoPosition = new GeoJsonPoint(0.0,0.0);
         this.inDenyList = false;
         this.witnesses = new ArrayList<>();
         this.nwCentering = 0;
@@ -96,12 +108,16 @@ public class Hotspot implements ClonnableObject<Hotspot> {
         this.swCentering = 0;
         this.seCentering = 0;
         this.centered = 0;
+        this.utilCoverage = 0;
 
         this.density1km = 0;
         this.density5km = 0;
         this.density10km = 0;
         this.density30km = 0;
         this.densityOver = 0;
+        this.hotspots1km = 0;
+        this.hotspots5km = 0;
+        this.hotspots10km = 0;
         this.competitors = 0;
         this.avgWitComp = 0.0;
         this.minWitComp = 0;
@@ -404,5 +420,45 @@ public class Hotspot implements ClonnableObject<Hotspot> {
 
     public void setArrivalPlaceHist(RespTimeHist arrivalPlaceHist) {
         this.arrivalPlaceHist = arrivalPlaceHist;
+    }
+
+    public GeoJsonPoint getMongoPosition() {
+        return mongoPosition;
+    }
+
+    public void setMongoPosition(GeoJsonPoint mongoPosition) {
+        this.mongoPosition = mongoPosition;
+    }
+
+    public int getHotspots1km() {
+        return hotspots1km;
+    }
+
+    public void setHotspots1km(int hotspots1km) {
+        this.hotspots1km = hotspots1km;
+    }
+
+    public int getHotspots5km() {
+        return hotspots5km;
+    }
+
+    public void setHotspots5km(int hotspots5km) {
+        this.hotspots5km = hotspots5km;
+    }
+
+    public int getHotspots10km() {
+        return hotspots10km;
+    }
+
+    public void setHotspots10km(int hotspots10km) {
+        this.hotspots10km = hotspots10km;
+    }
+
+    public int getUtilCoverage() {
+        return utilCoverage;
+    }
+
+    public void setUtilCoverage(int utilCoverage) {
+        this.utilCoverage = utilCoverage;
     }
 }
