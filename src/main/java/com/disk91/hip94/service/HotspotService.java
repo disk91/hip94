@@ -62,7 +62,7 @@ public class HotspotService {
 
 
 
-    public Hotspot getOneHotspot(String hotspotId, double lat, double lng, long timeRef)
+    public Hotspot getOneHotspot(String hotspotId, String h3, double lat, double lng, long timeRef)
     throws ITNotFoundException {
         Hotspot hs = heliumHotspotCache.get(hotspotId);
         if ( hs == null ) {
@@ -78,6 +78,7 @@ public class HotspotService {
                     hs.getPosition().setLat(lat);
                     hs.getPosition().setLng(lng);
                     hs.getPosition().setLastDatePosition(timeRef);
+                    hs.getPosition().setH3hex(h3);
                 } else {
                     /*
                     if ( this.notFoundHs.get(hotspotId) != null)
@@ -124,7 +125,7 @@ public class HotspotService {
 
     public void updateStats(String hsId) {
         try {
-            Hotspot h = getOneHotspot(hsId, 0, 0, 0);
+            Hotspot h = getOneHotspot(hsId, "",0, 0, 0);
 
             // identify unique hotspots
             HashMap<String,Witness> hss = new HashMap<>();
@@ -136,7 +137,7 @@ public class HotspotService {
             AtomicInteger nw = new AtomicInteger(0); AtomicInteger ne = new AtomicInteger(0); AtomicInteger sw = new AtomicInteger(0); AtomicInteger se = new AtomicInteger(0);
             h.getWitnesses().parallelStream().forEach( w -> {
                 try {
-                    Hotspot hw = getOneHotspot(w.getHotspotId(), 0, 0, 0);
+                    Hotspot hw = getOneHotspot(w.getHotspotId(), "",0, 0, 0);
                     if ( Gps.isAValidCoordinate(hw.getPosition().getLat(),hw.getPosition().getLng())) {
 
                         if (h.getPosition().getLat() > hw.getPosition().getLat()) {
@@ -168,7 +169,7 @@ public class HotspotService {
             AtomicInteger hnw = new AtomicInteger(0); AtomicInteger hne = new AtomicInteger(0); AtomicInteger hsw = new AtomicInteger(0); AtomicInteger hse = new AtomicInteger(0);
             hss.values().parallelStream().forEach( w -> {
                 try {
-                    Hotspot hw = getOneHotspot(w.getHotspotId(), 0, 0, 0);
+                    Hotspot hw = getOneHotspot(w.getHotspotId(), "",0, 0, 0);
                     if ( Gps.isAValidCoordinate(hw.getPosition().getLat(),hw.getPosition().getLng())) {
 
                         if (h.getPosition().getLat() > hw.getPosition().getLat()) {
@@ -215,7 +216,7 @@ public class HotspotService {
             AtomicInteger d1 = new AtomicInteger(0); AtomicInteger d5 = new AtomicInteger(0); AtomicInteger d10 = new AtomicInteger(0); AtomicInteger d30= new AtomicInteger(0); AtomicInteger dO= new AtomicInteger(0);
             hss.values().parallelStream().forEach( w -> {
                 try {
-                    Hotspot hw = getOneHotspot(w.getHotspotId(), 0, 0, 0);
+                    Hotspot hw = getOneHotspot(w.getHotspotId(),"", 0, 0, 0);
                     if ( Gps.isAValidCoordinate(hw.getPosition().getLat(),hw.getPosition().getLng())) {
                         double dist = Gps.distance(
                             h.getPosition().getLat(), hw.getPosition().getLat(),

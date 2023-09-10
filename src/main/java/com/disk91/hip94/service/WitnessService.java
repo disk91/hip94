@@ -73,7 +73,7 @@ public class WitnessService {
 
         Hotspot beaconner = null;
         try {
-            beaconner = hotspotService.getOneHotspot(hsBeaconerId, pos.lat, pos.lng, beaconTimeMs);
+            beaconner = hotspotService.getOneHotspot(hsBeaconerId, beacon.getLocation(), pos.lat, pos.lng, beaconTimeMs);
         } catch (ITNotFoundException x) {
             return false;
         }
@@ -102,7 +102,7 @@ public class WitnessService {
                 continue;
             }
             try {
-                Hotspot hw = hotspotService.getOneHotspot(HeliumHelper.pubAddressToName(v.getReport().getPubKey()), wpos.lat, wpos.lng, beaconTimeMs);
+                Hotspot hw = hotspotService.getOneHotspot(HeliumHelper.pubAddressToName(v.getReport().getPubKey()), v.getLocation(), wpos.lat, wpos.lng, beaconTimeMs);
 
                 w.setHotspotId(beaconner.getHotspotId());
                 w.setHotspotRxTime(v.getReport().getTimestamp() / 1_000_000); // Ts at Hostpot Rx
@@ -142,7 +142,7 @@ public class WitnessService {
                 continue;
             }
             try {
-                Hotspot hw = hotspotService.getOneHotspot(HeliumHelper.pubAddressToName(v.getReport().getPubKey()), wpos.lat, wpos.lng, beaconTimeMs);
+                Hotspot hw = hotspotService.getOneHotspot(HeliumHelper.pubAddressToName(v.getReport().getPubKey()), v.getLocation(), wpos.lat, wpos.lng, beaconTimeMs);
 
                 w.setHotspotId(beaconner.getHotspotId());
                 w.setHotspotRxTime(v.getReport().getTimestamp() / 1_000_000); // Ts at Hostpot Rx

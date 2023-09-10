@@ -11,16 +11,8 @@ public class LatLng implements ClonnableObject<LatLng> {
 
     private double lng;
 
-    private String country = "";
+    private String h3hex = "";
 
-    private String city = "";
-
-
-    private double alt;
-
-    private double gain;
-
-    private double hexScale = 0;
 
     // --------
 
@@ -28,12 +20,7 @@ public class LatLng implements ClonnableObject<LatLng> {
         LatLng c = new LatLng();
         c.setLat(lat);
         c.setLng(lng);
-        c.setAlt(alt);
-        c.setGain(gain);
-        c.setCountry(country);
-        c.setCity(city);
         c.setLastDatePosition(lastDatePosition);
-        c.setHexScale(hexScale);
         return c;
     }
 
@@ -65,41 +52,11 @@ public class LatLng implements ClonnableObject<LatLng> {
         this.lng = lng;
     }
 
-    public double getAlt() {
-        return alt;
+    public String getH3hex() {
+        return h3hex;
     }
 
-    public void setAlt(double alt) {
-        this.alt = alt;
+    public void setH3hex(String h3hex) {
+        this.h3hex = h3hex;
     }
-
-    public double getGain() {
-        return gain;
-    }
-
-    public void setGain(double gain) {
-        this.gain = gain;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public double getHexScale() { return this.hexScale; }
-
-    public void setHexScale(double hexScale) { this.hexScale = hexScale; }
-
-
 }
