@@ -3,6 +3,7 @@ package com.disk91.hip94.service;
 import com.disk91.hip94.EtlConfig;
 import com.disk91.hip94.data.object.Hotspot;
 import com.disk91.hip94.data.object.Witness;
+import com.disk91.hip94.data.object.sub.RespTimeHist;
 import com.disk91.hip94.data.repository.HotspotsRepository;
 import fr.ingeniousthings.tools.*;
 import org.slf4j.Logger;
@@ -124,10 +125,15 @@ public class HotspotService {
     public void updateStats(String hsId) {
         try {
             Hotspot h = getOneHotspot(hsId, 0, 0, 0);
-            AtomicInteger nw = new AtomicInteger(0); AtomicInteger ne = new AtomicInteger(0); AtomicInteger sw = new AtomicInteger(0); AtomicInteger se = new AtomicInteger(0);
-            // density around
-            AtomicInteger d1 = new AtomicInteger(0); AtomicInteger d5 = new AtomicInteger(0); AtomicInteger d10 = new AtomicInteger(0); AtomicInteger d30= new AtomicInteger(0); AtomicInteger dO= new AtomicInteger(0);
 
+            // identify unique hotspots
+            HashMap<String,Witness> hss = new HashMap<>();
+            for ( Witness _w : h.getWitnesses() ) {
+                hss.putIfAbsent(_w.getHotspotId(),_w);
+            }
+
+            // compute the location of the witnesses
+            AtomicInteger nw = new AtomicInteger(0); AtomicInteger ne = new AtomicInteger(0); AtomicInteger sw = new AtomicInteger(0); AtomicInteger se = new AtomicInteger(0);
             h.getWitnesses().parallelStream().forEach( w -> {
                 try {
                     Hotspot hw = getOneHotspot(w.getHotspotId(), 0, 0, 0);
@@ -148,7 +154,69 @@ public class HotspotService {
                                 ne.getAndIncrement();
                             }
                         }
+                    }
+                } catch ( ITNotFoundException x ) {
+                    log.warn("Wit Hotspot "+hsId+" not found");
+                }
+            });
+            h.setNwCentering(nw.get());
+            h.setNeCentering(ne.get());
+            h.setSwCentering(sw.get());
+            h.setSeCentering(se.get());
 
+            // compute the location of the hotspots around and distance
+            AtomicInteger hnw = new AtomicInteger(0); AtomicInteger hne = new AtomicInteger(0); AtomicInteger hsw = new AtomicInteger(0); AtomicInteger hse = new AtomicInteger(0);
+            hss.values().parallelStream().forEach( w -> {
+                try {
+                    Hotspot hw = getOneHotspot(w.getHotspotId(), 0, 0, 0);
+                    if ( Gps.isAValidCoordinate(hw.getPosition().getLat(),hw.getPosition().getLng())) {
+
+                        if (h.getPosition().getLat() > hw.getPosition().getLat()) {
+                            if (h.getPosition().getLng() > hw.getPosition().getLng()) {
+                                //sw
+                                hsw.getAndIncrement();
+                            } else {
+                                hse.getAndIncrement();
+                            }
+                        } else {
+                            if (h.getPosition().getLng() > hw.getPosition().getLng()) {
+                                //nw
+                                hnw.getAndIncrement();
+                            } else {
+                                hne.getAndIncrement();
+                            }
+                        }
+                    }
+                } catch ( ITNotFoundException x ) {
+                    log.warn("Wit Hotspot "+hsId+" not found 2");
+                }
+            });
+
+            // assuming centered when difference between N & S lower than 50% idem between W & E
+            // based on witnesses. If more than large number of HS all direction, directly consider centered
+            if ( h.getWitnesses().size() > 10 ) {
+                h.setCentered(1); // by default
+                if ( hne.get() < etlConfig.getHeliumCenterLimit() ||    // if we have plenty of HS all round, we are centered de facto
+                    hse.get() < etlConfig.getHeliumCenterLimit() ||
+                    hnw.get() < etlConfig.getHeliumCenterLimit() ||
+                    hne.get() < etlConfig.getHeliumCenterLimit()
+                ) {
+                    if ((Math.abs((h.getNeCentering() + h.getNwCentering()) - (h.getSeCentering() + h.getSwCentering())) / (double) h.getWitnesses().size()) > etlConfig.getHeliumCenterRatio()) {
+                        h.setCentered(2); // excentered
+                    }
+                    if ((Math.abs((h.getNeCentering() + h.getSeCentering()) - (h.getNwCentering() + h.getSwCentering())) / (double) h.getWitnesses().size()) > etlConfig.getHeliumCenterRatio()) {
+                        h.setCentered(2); // excentrered
+                    }
+                }
+            } else h.setCentered(0); // not enough data
+
+
+            // density around
+            AtomicInteger d1 = new AtomicInteger(0); AtomicInteger d5 = new AtomicInteger(0); AtomicInteger d10 = new AtomicInteger(0); AtomicInteger d30= new AtomicInteger(0); AtomicInteger dO= new AtomicInteger(0);
+            hss.values().parallelStream().forEach( w -> {
+                try {
+                    Hotspot hw = getOneHotspot(w.getHotspotId(), 0, 0, 0);
+                    if ( Gps.isAValidCoordinate(hw.getPosition().getLat(),hw.getPosition().getLng())) {
                         double dist = Gps.distance(
                             h.getPosition().getLat(), hw.getPosition().getLat(),
                             h.getPosition().getLng(), hw.getPosition().getLng(),
@@ -172,48 +240,40 @@ public class HotspotService {
                     log.warn("Wit Hotspot "+hsId+" not found");
                 }
             });
-            h.setNwCentering(nw.get());
-            h.setNeCentering(ne.get());
-            h.setSwCentering(sw.get());
-            h.setSeCentering(se.get());
             h.setDensity1km(d1.get());
             h.setDensity5km(d5.get());
             h.setDensity10km(d10.get());
             h.setDensity30km(d30.get());
             h.setDensityOver(dO.get());
 
-            // assuming centered when difference between N & S lower than 30% idem between W & E
-            if ( h.getWitnesses().size() > 10 ) {
-                h.setCentered(1); // by default
-                if ( h.getSwCentering() < etlConfig.getHeliumCenterLimit() ||
-                     h.getSeCentering() < etlConfig.getHeliumCenterLimit() ||
-                     h.getNwCentering() < etlConfig.getHeliumCenterLimit() ||
-                     h.getNeCentering() < etlConfig.getHeliumCenterLimit()
-                ) {
-                    if ((Math.abs((h.getNeCentering() + h.getNwCentering()) - (h.getSeCentering() + h.getSwCentering())) / (double) h.getWitnesses().size()) > etlConfig.getHeliumCenterRatio()) {
-                        h.setCentered(2); // excentered
-                    }
-                    if ((Math.abs((h.getNeCentering() + h.getSeCentering()) - (h.getNwCentering() + h.getSwCentering())) / (double) h.getWitnesses().size()) > etlConfig.getHeliumCenterRatio()) {
-                        h.setCentered(2); // excentrered
-                    }
-                }
-            } else h.setCentered(0); // not enough data
-
             h.setParticipations(h.getWitnesses().size());
+            h.setCompetitors(hss.size());
             h.setCurrentSelection(0);
             h.setRandom14Selection(0);
             h.setInTimeWindowsSelection(0);
             h.setInTimeWindows14Selection(0);
             h.setInExtendedTWSelection(0);
             long mDist = 0;
+            double totCompet = 0.0;
+            h.setMinWitComp(1_000_000);
+            h.setMaxWitComp(0);
+            h.getTravelTimeHist().init();
+            h.getArrivalPlaceHist().init();
             for ( Witness w : h.getWitnesses() ) {
-                 if ( w.isCurrentlySelected() ) h.setCurrentSelection(h.getCurrentSelection()+1);
-                 if ( w.isRandom14Selected() ) h.setRandom14Selection(h.getRandom14Selection()+1);
-                 if ( w.isWindowsSelected() ) h.setInTimeWindowsSelection(h.getInTimeWindowsSelection()+1);
-                 if ( w.isWindows14Selected() ) h.setInTimeWindows14Selection(h.getInTimeWindows14Selection()+1);
-                 if ( w.isWindowsExtendedSelected() ) h.setInExtendedTWSelection(h.getInExtendedTWSelection()+1);
-                 if ( w.getDistance() > mDist ) mDist = w.getDistance();
+                if ( w.isCurrentlySelected() ) h.setCurrentSelection(h.getCurrentSelection()+1);
+                if ( w.isRandom14Selected() ) h.setRandom14Selection(h.getRandom14Selection()+1);
+                if ( w.isWindowsSelected() ) h.setInTimeWindowsSelection(h.getInTimeWindowsSelection()+1);
+                if ( w.isWindows14Selected() ) h.setInTimeWindows14Selection(h.getInTimeWindows14Selection()+1);
+                if ( w.isWindowsExtendedSelected() ) h.setInExtendedTWSelection(h.getInExtendedTWSelection()+1);
+                if ( w.getDistance() > mDist ) mDist = w.getDistance();
+                if ( w.getWitnessCompetitors() > h.getMaxWitComp() ) h.setMaxWitComp(w.getWitnessCompetitors());
+                if ( w.getWitnessCompetitors() < h.getMinWitComp() ) h.setMinWitComp(w.getWitnessCompetitors());
+                totCompet += w.getWitnessCompetitors();
+                // compute travel time histogram
+                h.getArrivalPlaceHist().addOneTime(w.getDeltaTime());
+                h.getTravelTimeHist().addOneTime(w.getTravelTime());
             }
+            h.setAvgWitComp(totCompet/h.getWitnesses().size());
             h.setMaxDistance(mDist);
 
             h.setDenseArea((h.getDensity1km() > etlConfig.getHeliumDenseLimit()));

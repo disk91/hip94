@@ -1,6 +1,7 @@
 package com.disk91.hip94.data.object;
 
 import com.disk91.hip94.data.object.sub.LatLng;
+import com.disk91.hip94.data.object.sub.RespTimeHist;
 import fr.ingeniousthings.tools.Animal;
 import fr.ingeniousthings.tools.ClonnableObject;
 import org.springframework.data.annotation.Id;
@@ -33,20 +34,25 @@ public class Hotspot implements ClonnableObject<Hotspot> {
     // List of hotspots receiving this hotspot
     private List<Witness> witnesses;
 
-    int nwCentering;    // quantity of HS on north west side
-    int neCentering;    // qantity of HS on north east side
-    int swCentering;  // quantity of HS on south west side
-    int seCentering; // quantity of HS on south east side
+    int nwCentering;    // quantity of beacon on north west side
+    int neCentering;    // qantity of beacon on north east side
+    int swCentering;  // quantity of beacon on south west side
+    int seCentering; // quantity of beacon on south east side
 
     int centered;   // 0 unknown, 1 true when the hotspot is centered vs excentred
 
-    int density1km;     // number of witnesser 1km around
-    int density5km;     // number of witnesser 1-5km around
-    int density10km;    // number of witnesser 5-10km around
-    int density30km;    // number of witnesser 10-30km around
-    int densityOver;    // number of witnesser above 30km
+    int density1km;     // number of hotspot-beaconing 1km around
+    int density5km;     // number of hotspot-beaconing 1-5km around
+    int density10km;    // number of hotspot-beaconing 5-10km around
+    int density30km;    // number of hotspot-beaconing 10-30km around
+    int densityOver;    // number of hotspot-beaconing above 30km
 
-    boolean denseArea;   // true when more than 10 in 1km around
+    int competitors;    // number of hotspot-beaconing around (sum of density)
+    double avgWitComp;  // average number of competitor during poc
+    int minWitComp;     // min seen competitor during poc
+    int maxWitComp;     // max seen competitor during pc
+
+    boolean denseArea;   // true when more than 10 hotspot-beaconing in 1km around
     boolean extendCoverage; // true when the density is mostly more than 10km+ or excentered with 10km+ coverage
 
     int lowCoverage;    // 0 unknown, 1 when true ( no hs above 1km ), 2 when false
@@ -70,6 +76,10 @@ public class Hotspot implements ClonnableObject<Hotspot> {
     };
     protected HotspotBrand brand = HotspotBrand.UNKNOWN;
 
+    protected RespTimeHist travelTimeHist;
+    protected RespTimeHist arrivalPlaceHist;
+
+
     // --
 
     public void init(String hotspotId) {
@@ -92,6 +102,10 @@ public class Hotspot implements ClonnableObject<Hotspot> {
         this.density10km = 0;
         this.density30km = 0;
         this.densityOver = 0;
+        this.competitors = 0;
+        this.avgWitComp = 0.0;
+        this.minWitComp = 0;
+        this.maxWitComp = 0;
 
         this.participations = 0;
         this.currentSelection = 0;
@@ -102,6 +116,11 @@ public class Hotspot implements ClonnableObject<Hotspot> {
         this.maxDistance = 0;
         this.brand = HotspotBrand.UNKNOWN;
         this.positionChanged = false;
+
+        this.travelTimeHist = new RespTimeHist();
+        this.travelTimeHist.init();
+        this.arrivalPlaceHist = new RespTimeHist();
+        this.arrivalPlaceHist.init();
     }
 
 
@@ -337,5 +356,53 @@ public class Hotspot implements ClonnableObject<Hotspot> {
 
     public void setLowCoverage(int lowCoverage) {
         this.lowCoverage = lowCoverage;
+    }
+
+    public int getCompetitors() {
+        return competitors;
+    }
+
+    public void setCompetitors(int competitors) {
+        this.competitors = competitors;
+    }
+
+    public double getAvgWitComp() {
+        return avgWitComp;
+    }
+
+    public void setAvgWitComp(double avgWitComp) {
+        this.avgWitComp = avgWitComp;
+    }
+
+    public int getMinWitComp() {
+        return minWitComp;
+    }
+
+    public void setMinWitComp(int minWitComp) {
+        this.minWitComp = minWitComp;
+    }
+
+    public int getMaxWitComp() {
+        return maxWitComp;
+    }
+
+    public void setMaxWitComp(int maxWitComp) {
+        this.maxWitComp = maxWitComp;
+    }
+
+    public RespTimeHist getTravelTimeHist() {
+        return travelTimeHist;
+    }
+
+    public void setTravelTimeHist(RespTimeHist travelTimeHist) {
+        this.travelTimeHist = travelTimeHist;
+    }
+
+    public RespTimeHist getArrivalPlaceHist() {
+        return arrivalPlaceHist;
+    }
+
+    public void setArrivalPlaceHist(RespTimeHist arrivalPlaceHist) {
+        this.arrivalPlaceHist = arrivalPlaceHist;
     }
 }

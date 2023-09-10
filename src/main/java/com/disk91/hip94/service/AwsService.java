@@ -334,6 +334,7 @@ public class AwsService {
                             }
                         } catch ( Exception x ) {
                             log.error("Failed to process IoTPoc "+object.getKey()+" at "+current+"/"+toProcess.size()+" ["+x.getMessage()+"]");
+                            x.printStackTrace();
                             current++;
                         }
                     } // end of current file

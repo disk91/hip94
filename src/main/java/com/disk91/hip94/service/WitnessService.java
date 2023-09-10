@@ -84,7 +84,7 @@ public class WitnessService {
                 if (!v.getInvalidDetails().hasDenylistTag()) {
                     competitors++;
                 }
-            }
+            } else competitors++;
         }
 
         ArrayList<Witness> witnesses = new ArrayList<>();
@@ -92,7 +92,12 @@ public class WitnessService {
         // Update the Witness information
         for ( lora_verified_witness_report_v1 v : p.getSelectedWitnessesList() ) {
             Witness w = new Witness();
-            LatLng wpos = h3.cellToLatLng(Long.parseLong(v.getLocation()));
+            LatLng wpos = null;
+            try {
+                wpos = h3.cellToLatLng(Long.parseLong(v.getLocation()));
+            } catch ( NumberFormatException x ) {
+                continue;
+            }
             if (wpos == null || ! Gps.isAValidCoordinate(wpos.lat, wpos.lng) ) {
                 continue;
             }
@@ -127,7 +132,12 @@ public class WitnessService {
                 }
             }
             Witness w = new Witness();
-            LatLng wpos = h3.cellToLatLng(Long.parseLong(v.getLocation()));
+            LatLng wpos = null;
+            try {
+                wpos = h3.cellToLatLng(Long.parseLong(v.getLocation()));
+            } catch ( NumberFormatException x ) {
+                continue;
+            }
             if (wpos == null || ! Gps.isAValidCoordinate(wpos.lat, wpos.lng) ) {
                 continue;
             }
