@@ -251,9 +251,11 @@ public class HotspotService {
             h.setParticipations(h.getWitnesses().size());
             if ( h.getCompetitors() != hss.size() ) {
                 // new hotspot detected, rescan the hotspot physically around
-                h.setHotspots1km((int)hotspotsRepository.countByMongoPositionNearbyDistance(h.getPosition().getLng(),h.getPosition().getLat(),1_000));
-                h.setHotspots5km((int)hotspotsRepository.countByMongoPositionNearbyDistance(h.getPosition().getLng(),h.getPosition().getLat(),5_000));
-                h.setHotspots10km((int)hotspotsRepository.countByMongoPositionNearbyDistance(h.getPosition().getLng(),h.getPosition().getLat(),10_000));
+                // @Todo apparently Mongo JPA does not know how to manage a count request and return all, so need to pass to the object
+                //       may be slow with big dataset
+                h.setHotspots1km(hotspotsRepository.findMongoPositionByNearbyDistance(h.getPosition().getLng(),h.getPosition().getLat(),1_000).size());
+                h.setHotspots5km(hotspotsRepository.findMongoPositionByNearbyDistance(h.getPosition().getLng(),h.getPosition().getLat(),5_000).size());
+                h.setHotspots10km(hotspotsRepository.findMongoPositionByNearbyDistance(h.getPosition().getLng(),h.getPosition().getLat(),10_000).size());
                 h.setHotspots10km(h.getHotspots10km()-h.getHotspots5km());
                 h.setHotspots5km(h.getHotspots5km()-h.getHotspots1km());
             }
