@@ -1,6 +1,7 @@
 package com.disk91.hip94.service;
 
 import com.disk91.hip94.EtlConfig;
+import com.disk91.hip94.api.itf.HotspotLiteRespItf;
 import com.disk91.hip94.data.object.Hotspot;
 import com.disk91.hip94.data.object.Witness;
 import com.disk91.hip94.data.repository.HotspotsRepository;
@@ -12,6 +13,7 @@ import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -60,7 +62,38 @@ public class HotspotService {
         heliumHotspotCache.commit(false,5000);
     }
 
+    // search Hotspot in a zone
+    public List<HotspotLiteRespItf> getHotspotInAZone(double latN, double latS, double lonW, double lonE)
+    throws ITNotFoundException {
+        ArrayList<HotspotLiteRespItf> ret = new ArrayList<>();
+        if ( latN < latS || lonW > lonE ) throw new ITNotFoundException("Invalid coordinate");
 
+        if ( Gps.distance(latN,latS,lonW,lonE,0,0) > 50_000 ) {
+            throw new ITNotFoundException("Search area is too large");
+        }
+
+        List<Hotspot> hs = hotspotsRepository.findByMongoPositionNearbyBox(lonW,latS,lonE,latN);
+        hs.parallelStream().forEach(h -> {
+            HotspotLiteRespItf hl = new HotspotLiteRespItf();
+            hl.init(h);
+            ret.add(hl);
+        });
+
+        return ret;
+    }
+
+
+    public Hotspot getOneExistingHotspot(String hotspotId)
+    throws ITNotFoundException {
+        Hotspot hs = heliumHotspotCache.get(hotspotId);
+        if (hs == null) {
+            hs = hotspotsRepository.findOneHotspotByHotspotId(hotspotId);
+            if (hs == null) {
+                throw new ITNotFoundException();
+            }
+        }
+        return hs;
+    }
 
     public Hotspot getOneHotspot(String hotspotId, String h3, double lat, double lng, long timeRef)
     throws ITNotFoundException {
