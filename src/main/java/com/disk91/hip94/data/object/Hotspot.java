@@ -18,7 +18,7 @@ import java.util.List;
 @Document(collection = "etl_hotspots")
 @CompoundIndexes({
         @CompoundIndex(name = "hotspotId", def = "{'hotspotId' : 1 }"),
-        @CompoundIndex(name = "animalName", def = "{'animalName' : 1 }"),
+        @CompoundIndex(name = "animalName", def = "{'animalName' : 'text'}"),
         @CompoundIndex(name = "hotspotId_Id", def = "{'hotspotId' : 1, 'id' : 1}")
 })
 public class Hotspot implements ClonnableObject<Hotspot> {

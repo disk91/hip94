@@ -1,6 +1,7 @@
 package com.disk91.hip94.data.repository;
 
 import com.disk91.hip94.data.object.Hotspot;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -20,5 +21,12 @@ public interface HotspotsRepository extends MongoRepository<Hotspot, String> {
 
     @Query("{ 'mongoPosition' : { '$geoWithin' : { '$box' : [ [?0, ?1], [?2, ?3] ] } } }")
     public List<Hotspot> findByMongoPositionNearbyBox(double bottomLeftLongitude, double bottomLeftLatitude, double topRightLongitude, double topRightLatitude);
+
+    @Query("{ $text : { $search : ?0 } }")
+    public List<Hotspot>  findHotspotByAnimalNameLike(String search, Pageable p);
+
+    @Query("{ animalName : { $regex : '^?0' } }")
+    public List<Hotspot>  findHotspotByAnimalNameStarts(String search, Pageable p);
+
 
 }

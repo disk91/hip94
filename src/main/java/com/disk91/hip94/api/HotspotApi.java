@@ -77,6 +77,29 @@ public class HotspotApi {
         }
     }
 
+    @Operation(summary = "Find Hotspot by animal name",
+        description = "Search hotspot with animal name",
+        responses = {
+            @ApiResponse(responseCode = "200", description= "Done",
+                content = @Content(array = @ArraySchema(schema = @Schema( implementation = HotspotLiteRespItf.class)))),
+            @ApiResponse(responseCode = "204", description= "No content", content = @Content(schema = @Schema(implementation = ActionResult.class)))
+        }
+    )
+    @RequestMapping(value="/search/{animal}/",
+        produces = MediaType.APPLICATION_JSON_VALUE,
+        method= RequestMethod.GET)
+    public ResponseEntity<?> getHotspotByAnimal(
+        HttpServletRequest request,
+        @Parameter(required = true, name = "animal", description = "animal name with - between words")
+        @PathVariable String animal
+    ) {
+        try {
+            List<HotspotLiteRespItf> r = hotspotService.getHotspotsByAnimal(animal);
+            return new ResponseEntity<>(r, HttpStatus.OK);
+        } catch ( ITNotFoundException x ) {
+            return new ResponseEntity<>(ActionResult.NODATA(), HttpStatus.NO_CONTENT);
+        }
+    }
 
     @Operation(summary = "Get Hotspot in a given area",
         description = "Get Hotspot in a given area",

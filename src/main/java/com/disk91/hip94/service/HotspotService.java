@@ -9,6 +9,7 @@ import fr.ingeniousthings.tools.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Service;
 
@@ -71,8 +72,10 @@ public class HotspotService {
         if ( Gps.distance(latN,latS,lonW,lonE,0,0) > 50_000 ) {
             throw new ITNotFoundException("Search area is too large");
         }
+        log.info("Search hotspot around ("+latN+", "+lonW+") and ("+latS+", "+lonE+")");
 
         List<Hotspot> hs = hotspotsRepository.findByMongoPositionNearbyBox(lonW,latS,lonE,latN);
+        log.info("Found "+hs.size()+" hotspots around");
         hs.parallelStream().forEach(h -> {
             HotspotLiteRespItf hl = new HotspotLiteRespItf();
             hl.init(h);
@@ -80,6 +83,27 @@ public class HotspotService {
         });
 
         return ret;
+    }
+
+    public List<HotspotLiteRespItf> getHotspotsByAnimal(String name)
+    throws ITNotFoundException {
+
+        name = name.replace(' ', '-');
+        PageRequest pageRequest = PageRequest.of(0,10);
+
+        ArrayList<HotspotLiteRespItf> ret = new ArrayList<>();
+        List<Hotspot> his = hotspotsRepository.findHotspotByAnimalNameLike(name, pageRequest);
+        if ( his.size() == 0 ) {
+            his = hotspotsRepository.findHotspotByAnimalNameStarts(name,pageRequest);
+        }
+        for ( Hotspot hi : his ) {
+            HotspotLiteRespItf id = new HotspotLiteRespItf();
+            id.init(hi);
+            ret.add(id);
+        }
+        if ( ret.size() == 0 ) throw new ITNotFoundException();
+        return ret;
+
     }
 
 
