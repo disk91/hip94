@@ -105,7 +105,7 @@ public class WitnessService {
                 Hotspot hw = hotspotService.getOneHotspot(HeliumHelper.pubAddressToName(v.getReport().getPubKey()), v.getLocation(), wpos.lat, wpos.lng, beaconTimeMs);
 
                 w.setHotspotId(beaconner.getHotspotId());
-                w.setH3hex(v.getLocation());
+                w.setH3hex(beacon.getLocation());
                 w.setHotspotRxTime(v.getReport().getTimestamp() / 1_000_000); // Ts at Hostpot Rx
                 w.setHeliumRXTime(v.getReceivedTimestamp()); // Ts at ingest
                 w.setTravelTime(w.getHeliumRXTime() - w.getHotspotRxTime()); // travel time
@@ -144,8 +144,8 @@ public class WitnessService {
             }
             try {
                 Hotspot hw = hotspotService.getOneHotspot(HeliumHelper.pubAddressToName(v.getReport().getPubKey()), v.getLocation(), wpos.lat, wpos.lng, beaconTimeMs);
-
                 w.setHotspotId(beaconner.getHotspotId());
+                w.setH3hex(beacon.getLocation());
                 w.setHotspotRxTime(v.getReport().getTimestamp() / 1_000_000); // Ts at Hostpot Rx
                 w.setHeliumRXTime(v.getReceivedTimestamp()); // Ts at ingest
                 w.setTravelTime(w.getHeliumRXTime() - w.getHotspotRxTime()); // travel time
