@@ -32,6 +32,8 @@ services:
       - AWS_SECRET_KEY=
       - MONGO_COLLECTION=helium-hip94-cfe
       - ETL_SERVER=https://foo.bar
+      - ETL_USER=
+      - ETL_PASS=
     ports:
       - 8000:8091
     mem_limit: 8000m
