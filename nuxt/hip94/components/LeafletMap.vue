@@ -52,7 +52,6 @@
                         var h3hex : string = parseInt(w.h3hex,10).toString(16);
                         const [ lat, lng ] : [number,number] = cellToLatLng(h3hex);
                         // const [ lat, lng ] : [number,number] = h3ToGeo(w.h3hex);
-                        console.log(h3hex+" "+lat+" / "+lng);
                         var marker = L.marker([ lat, lng ],{icon: greenIcon}).addTo(this.map!);
                         // We don't have the hs name 
                         // marker.bindTooltip(w.hotspotId);
