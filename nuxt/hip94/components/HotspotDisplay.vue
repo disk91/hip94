@@ -11,8 +11,20 @@
             </b-col>
             <b-col cols="6">
                 <b-row>
+                    <b-col cols="6">
+                      <apexchart type="donut" :options="hip83Option" :series="hip83Data"></apexchart>
+                    </b-col>
+                    <b-col cols="6">
+                      <apexchart type="donut" :options="prehip83Option" :series="prehip83Data"></apexchart>
+                    </b-col>
                 </b-row>
                 <b-row>
+                    <b-col cols="6">
+                      <apexchart type="donut" :options="win14Option" :series="win14Data"></apexchart>
+                    </b-col>
+                    <b-col cols="6">
+                      <apexchart type="donut" :options="winOption" :series="winData"></apexchart>
+                    </b-col>
                 </b-row>
             </b-col>
         </b-row>
@@ -52,6 +64,14 @@ interface context {
   travelData: any[],
   arrivalOptions : {},
   arrivalData: any[],
+  hip83Option: {},
+  hip83Data: any[],
+  prehip83Option: {},
+  prehip83Data: any[],
+  win14Option: {},
+  win14Data: any[],
+  winOption: {},
+  winData: any[],
 }
 
 
@@ -90,6 +110,50 @@ export default Vue.extend({
       },
       travelData: [],
       arrivalData: [],
+      hip83Option: {
+        chart: { type: 'donut',},
+        plotOptions: { pie: { startAngle: -90, endAngle: 90, offsetY: 10 } },
+        grid: { padding: { bottom: -100 } },
+        responsive: [{ breakpoint: 480, options: { chart: { width: 200 },legend: { position: 'bottom' } }}],
+        labels: ['Selected','Not Selected'],
+        colors:['#017b04', '#8b0202'],
+        title: { text:"HIP83 Selection", align: "left" },
+        legend: { position: 'bottom', },
+      },
+      hip83Data:[],
+      prehip83Option: {
+        chart: { type: 'donut',},
+        plotOptions: { pie: { startAngle: -90, endAngle: 90, offsetY: 10 } },
+        grid: { padding: { bottom: -100 } },
+        responsive: [{ breakpoint: 480, options: { chart: { width: 200 },legend: { position: 'bottom' } }}],
+        labels: ['Selected','Not Selected'],
+        colors:['#017b04', '#8b0202'],
+        title: { text:"Pre-HIP83 Selection (Random 14)", align: "left" },
+        legend: { position: 'bottom', },
+      },
+      prehip83Data:[],
+      win14Option: {
+        chart: { type: 'donut',},
+        plotOptions: { pie: { startAngle: -90, endAngle: 90, offsetY: 10 } },
+        grid: { padding: { bottom: -100 } },
+        responsive: [{ breakpoint: 480, options: { chart: { width: 200 },legend: { position: 'bottom' } }}],
+        labels: ['Selected','Not Selected'],
+        colors:['#017b04', '#8b0202'],
+        title: { text:"Window Selection (with random 14)", align: "left" },
+        legend: { position: 'bottom', },
+      },
+      win14Data:[],
+      winOption: {
+        chart: { type: 'donut',},
+        plotOptions: { pie: { startAngle: -90, endAngle: 90, offsetY: 10 } },
+        grid: { padding: { bottom: -100 } },
+        responsive: [{ breakpoint: 480, options: { chart: { width: 200 },legend: { position: 'bottom' } }}],
+        labels: ['In time Window','In Extended TW','Not Selected'],
+        colors:['#017b04', '#017b04', '#8b0202'],
+        title: { text:"Window Selection (all)", align: "left" },
+        legend: { position: 'bottom', },
+      },
+      winData:[],
     }
   },
   methods: {
@@ -124,6 +188,11 @@ export default Vue.extend({
                 this.travelData[0].data.push([w.heliumRXTime, w.travelTime])
                 this.arrivalData[0].data.push([w.heliumRXTime, w.deltaTime])
             });
+            // show selection ratio on different type
+            this.hip83Data=[this.hsFull.currentSelection, (this.hsFull.participations - this.hsFull.currentSelection)];
+            this.prehip83Data=[this.hsFull.random14Selection, (this.hsFull.participations - this.hsFull.random14Selection)];
+            this.win14Data=[this.hsFull.inTimeWindows14Selection, (this.hsFull.participations - this.hsFull.inTimeWindows14Selection)];
+            this.winData=[this.hsFull.inTimeWindowsSelection, this.hsFull.inExtendedTWSelection, (this.hsFull.participations - this.hsFull.inTimeWindowsSelection - this.hsFull.inExtendedTWSelection)];
             this.isBusy = false;
           } else {
             // 204 no entry
