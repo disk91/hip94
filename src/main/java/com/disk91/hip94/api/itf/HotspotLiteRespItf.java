@@ -83,6 +83,7 @@ public class HotspotLiteRespItf {
         this.hotspotId = h.getHotspotId();
         this.animalName = h.getAnimalName();
         this.position = h.getPosition();
+        this.positionChanged = h.isPositionChanged();
         this.inDenyList = h.isInDenyList();
         this.nwCentering = h.getNwCentering();
         this.neCentering = h.getNeCentering();
@@ -90,6 +91,9 @@ public class HotspotLiteRespItf {
         this.seCentering = h.getSeCentering();
         this.centered = h.getCentered();
         this.utilCoverage = h.getUtilCoverage();
+        this.extendCoverage = h.isExtendCoverage();
+        this.denseArea = h.isDenseArea();
+        this.lowCoverage = h.getLowCoverage();
 
         this.density1km = h.getDensity1km();
         this.density5km = h.getDensity5km();

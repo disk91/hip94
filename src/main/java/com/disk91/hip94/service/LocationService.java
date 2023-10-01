@@ -48,8 +48,7 @@ public class LocationService {
             String authHeader = "Basic " + new String(encodedAuth);
             headers.add(HttpHeaders.AUTHORIZATION, authHeader);
         }
-        HttpEntity<String> he = new HttpEntity<String>(headers);
-        return he;
+        return new HttpEntity<String>(headers);
 
     }
 
@@ -116,7 +115,6 @@ public class LocationService {
                 if (responseEntity.getBody() != null) {
                     HotspotBrand response = responseEntity.getBody();
                     return response.getBrand();
-
                 } else {
                     throw new ITNotFoundException();
                 }
