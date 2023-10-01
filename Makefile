@@ -15,6 +15,12 @@ install:
 	mkdir /helium-etl/hip94-run/nginx
 	mkdir /helium-etl/hip94-run/front
 	cp ./config/default.conf /helium-etl/hip94-run/nginx/
+	curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+    DEBIAN_FRONTEND=noninteractive apt update -qq >/dev/null 2>/dev/null
+    DEBIAN_FRONTEND=noninteractive apt install yarn npm -y -qq >/dev/null
+    npm install -g n && n stable && hash -r
+
 
 back: .FORCE
 	./gradlew build -x test && docker build -t disk91/hip94 .
