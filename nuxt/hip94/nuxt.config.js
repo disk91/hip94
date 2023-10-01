@@ -9,6 +9,7 @@ export default {
   publicRuntimeConfig: {
     apiHost:'http://etl-api.disk91.com:8000',
     searchHotspot:'/hotspot/3.0/search/',
+    searchHsByZone:'/hotspot/3.0',
     getOneHotspot:'/hotspot/3.0/'
   },
 

@@ -2,7 +2,7 @@
   <div>
     <b-navbar toggleable="lg" type="primary" variant="primary" class="py-0">
       <img src="/static/front/helium_logo.svg" style="width: 22px; position: relative; top: 0px ; left: -5px; ; margin-right: 4px;"/>
-      <b-navbar-brand to="/front/">
+      <b-navbar-brand to="/">
         <span class="text-light" style="font-size:1.2rem;height:30px;float:left;clear:left;font-weight: 400;position:relative; top:0px;">Hip94 Viewer</span>
       </b-navbar-brand>
       <b-navbar-nav class="ml-auto">
@@ -19,7 +19,7 @@
           :loading="isBusy"
           @search-change="onSearchChange"
           @select="onSelectHotspot"
-          style="width:300px;"
+          style="width:320px;"
         >
         </multiselect>
       </b-navbar-nav>
@@ -112,7 +112,8 @@ export default Vue.extend({
          return entry.animalName + ' ' + this.findCountry(entry.position.lat,entry.position.lng);
       } else return '';
     }
-  }
+  },
+
 })
 
 </script>

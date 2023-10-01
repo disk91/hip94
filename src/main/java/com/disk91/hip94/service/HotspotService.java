@@ -361,12 +361,12 @@ public class HotspotService {
 
             if ( h.getParticipations() > 20 ) {
                 if ( h.getDensity5km()+h.getDensity10km()+h.getDensity30km()+h.getDensityOver() > 0 ) {
-                    // coverage larger than 1 km
+                    // coverage larger than 1 km, we have PoC with hotspot around and over 1km
                     h.setLowCoverage(2);
                 } else {
                     // low coverage hotspot
                     if ( h.getHotspots5km()+ h.getHotspots10km() > 0 ) {
-                        // we know some hostpost around exists
+                        // we know some hotspots around exists even if no interaction
                         h.setLowCoverage(1);
                     } else {
                         // we don't know so we can't really measure the coverage
