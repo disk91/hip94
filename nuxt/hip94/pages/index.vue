@@ -27,11 +27,11 @@ export default Vue.extend({
   mounted() {
     this.$root.$on("hotspot-selection", (msg:any) => {
       this.isBusy = true;
-      this.$router.push('/hotspot/'+msg.hotspotId+'/');
+      this.$router.push('/hs/'+msg.hotspotId+'/');
     });
     this.$root.$on("hotspot-selection-id", (msg:any) => {
       this.isBusy = true;
-      this.$router.push('/hotspot/'+msg+'/');
+      this.$router.push('/hs/'+msg+'/');
     });
     this.$root.$on("busy-search", (msg:any) => {
       this.isBusy = true;

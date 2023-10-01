@@ -1,23 +1,4 @@
 services:
-  mongo:
-    image: mongo:latest
-    container_name: mongo-std-1
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
-    ports:
-      - 127.0.0.1:27717:27017
-    restart: unless-stopped
-    volumes:
-      - /helium-etl/hip94-run/mongo_data:/data/db
-      - /helium-etl/hip94-run/mongo_dump:/dump
-    networks:
-      - public_net
-      - hip94_net
-
   hip94:
     image: disk91/hip94
     container_name: hip94
@@ -44,6 +25,44 @@ services:
     networks:
       - public_net
       - hip94_net
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo-std-1
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    ports:
+      - 127.0.0.1:27717:27017
+    restart: unless-stopped
+    volumes:
+      - /helium-etl/hip94-run/mongo_data:/data/db
+      - /helium-etl/hip94-run/mongo_dump:/dump
+    networks:
+      - public_net
+      - hip94_net
+    logging: *logs
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - 8080:80
+      - 8443:443
+    restart: unless-stopped
+    depends_on:
+      - hip94
+    environment:
+      - SERVER_NAME=
+    volumes:
+      - /helium-etl/hip94-run/nginx/:/etc/nginx/conf.d/:ro
+      - /helium-etl/hip94-run/front/:/var/www/:ro
+    networks:
+      - public_net
+      - hip94_net
+    logging: *logs
 
 networks:
   public_net:

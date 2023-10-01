@@ -319,14 +319,14 @@ export default Vue.extend({
             ];
             // Hotspot around (remove itself)
             this.hsAround = [ {
-                data : [this.hsFull.hotspots1km-1, this.hsFull.hotspots5km, this.hsFull.hotspots10km]
+                data : [(this.hsFull.hotspots1km>0)?this.hsFull.hotspots1km-1:0, this.hsFull.hotspots5km, this.hsFull.hotspots10km]
             }];
             this.hsDensity = [ {
                 name : 'Interacting hotspots',
                 data : [this.hsFull.density1km, this.hsFull.density5km, this.hsFull.density10km, this.hsFull.density30km, this.hsFull.densityOver ]
             },{
                 name: 'Active hotspot',
-                data : [this.hsFull.hotspots1km-1, this.hsFull.hotspots5km, this.hsFull.hotspots10km, 0, 0]
+                data : [(this.hsFull.hotspots1km>0)?this.hsFull.hotspots1km-1:0, this.hsFull.hotspots5km, this.hsFull.hotspots10km, 0, 0]
             }
             ];
 

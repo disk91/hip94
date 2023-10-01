@@ -7,10 +7,11 @@ export default {
 
   // env variables loaded accessible on the front-end
   publicRuntimeConfig: {
-    apiHost:'http://etl-api.disk91.com:8000',
+    apiHost:process.env.API_HOST || '', // 'http://hip94.disk91.com:8080',
     searchHotspot:'/hotspot/3.0/search/',
     searchHsByZone:'/hotspot/3.0',
-    getOneHotspot:'/hotspot/3.0/'
+    getOneHotspot:'/hotspot/3.0/',
+    mapApiKey:'', //'?api_key=6e00200e-5e9d-4fb9-9231-09617e52a83e',
   },
 
   // Global page headers: https://go.nuxtjs.dev/config-head
