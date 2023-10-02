@@ -17,7 +17,6 @@ export default Vue.extend({
   methods: {
   },
   mounted() {
-    console.log("get hs"+this.$route.params.hotspotid);
     setTimeout(() => {
       // make sure reception is ready...
       this.$root.$emit("hotspot-update", this.$route.params.hotspotid);

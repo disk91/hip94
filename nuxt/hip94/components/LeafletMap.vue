@@ -73,7 +73,6 @@
             }
         },
         mounted() {
-            console.log("mounted LeafMap");
             this.$root.$on("hotspot-map-display", (msg:Hotspot) => {
                 this.drawMap(msg);
             });
