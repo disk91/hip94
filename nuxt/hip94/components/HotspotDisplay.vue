@@ -345,7 +345,9 @@ export default Vue.extend({
     }
   },
   mounted() {
+    console.log("mounted HsDi");
     this.$root.$on("hotspot-update", (msg:string) => {
+        console.log("received "+msg);
         this.updateHotspot(msg);
     });
   }
