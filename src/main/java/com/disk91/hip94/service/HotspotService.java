@@ -89,6 +89,8 @@ public class HotspotService {
     throws ITNotFoundException {
 
         name = name.replace(' ', '-');
+        if ( ! name.matches("^[a-zA-Z\\-]+$") ) throw new ITNotFoundException();
+
         PageRequest pageRequest = PageRequest.of(0,10);
 
         ArrayList<HotspotLiteRespItf> ret = new ArrayList<>();
@@ -159,7 +161,7 @@ public class HotspotService {
                     hs.setBrand(Hotspot.HotspotBrand.UNKNOWN);
                 }
                 hs = hotspotsRepository.save(hs);       // save & get ID
-                heliumHotspotCache.put(hs,hotspotId);
+                heliumHotspotCache.put(hs,hotspotId,true);
             }
         }
         return hs;
@@ -168,7 +170,7 @@ public class HotspotService {
     //HashMap<String,String> hsCache = new HashMap<>();
     public void updateHostspot(Hotspot h) {
         //this.hsCache.computeIfAbsent(h.getHotspotId(), k -> h.getHotspotId());
-        heliumHotspotCache.put(h, h.getHotspotId());
+        heliumHotspotCache.put(h, h.getHotspotId(),true);
     }
 
     /*
