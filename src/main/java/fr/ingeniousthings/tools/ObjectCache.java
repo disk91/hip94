@@ -345,6 +345,14 @@ public abstract class ObjectCache<K, T extends ClonnableObject<T>> {
         long realCount = 0;
         for (CachedObject<K,T> c : this.cache.values() ) {
             realCount++;
+            // recheck the last access as score is not updated when an entry
+            // is not anymore accessed
+            long cachedPeriod = now - c.getLastAccessTime();
+            if ( cachedPeriod > Now.ONE_HOUR ) c.setScore(-1000);
+            else if ( cachedPeriod > 15*Now.ONE_MINUTE ) c.setScore(c.getScore() - 500);
+            else if ( cachedPeriod >  1*Now.ONE_MINUTE ) c.setScore((int)(c.getScore() - 30*(cachedPeriod/Now.ONE_MINUTE)));
+            else c.setScore((int)(c.getScore() - 5*(cachedPeriod/1000)));
+
             if ( c.getScore() >= -900 ){
                 if ( c.getScore() >= 1000 ) {
                     countValues[1899]++;
