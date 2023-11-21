@@ -25,6 +25,11 @@ public class EtlConfig {
     @Value("${aws.bucket.name}")
     private String awsBucketName;
 
+    // on restart force resync history
+    @Value("${aws.force.resync:true}")
+    private boolean awsForceResync;
+
+
     public String getAwsAccessKey() {
         return awsAccessKey;
     }
@@ -37,6 +42,9 @@ public class EtlConfig {
         return awsBucketName;
     }
 
+    public boolean isAwsForceResync() {
+        return awsForceResync;
+    }
 
     // ====================================
     // Internal settings

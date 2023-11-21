@@ -63,7 +63,7 @@ public class AwsService {
         }
 
         iotPocFile = paramRepository.findOneParamByParamName("aws_last_iotpoc_sync");
-        if ( iotPocFile == null ) {
+        if ( iotPocFile == null || etlConfig.isAwsForceResync() ) {
             iotPocFile = new Param();
             iotPocFile.setParamName("aws_last_iotpoc_sync");
             iotPocFile.setStringValue(IOTPOC_FIRST_OBJECT);
