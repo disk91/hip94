@@ -400,7 +400,9 @@ public abstract class ObjectCache<K, T extends ClonnableObject<T>> {
         }
 
         // Update stats
-        this.lastGCDurationMs = (Now.NanoTime() - start)/1000;
+        this.lastGCDurationMs = (Now.NanoTime() - start)/1_000_000;
+        log.info("End of cache clean, removed: "+keysToBeRemoved.size()+" updated: "+keysToBeUpdated.size()+" in: "+this.lastGCDurationMs+"ms");
+
         this.inClean = false;
     }
 

@@ -128,10 +128,13 @@ public class LocationService {
             throw new ITParseException();
         } catch (HttpServerErrorException e) {
             log.error("Brand backend communication exception :" + e.getStatusCode() + "[" + e.getMessage() + "]");
-            log.error("Related to Hotspost details (2) for "+hotspotID);
+            log.error("Related to Hotspost details (2) for " + hotspotID);
             throw new ITParseException();
+        } catch ( ITNotFoundException x) {
+            log.error("Brand Not Found");
+            throw new ITNotFoundException();
         } catch (Exception x ) {
-            log.error("Unexpected error "+x.getMessage());
+            log.error("Unexpected error "+x.getClass()+" / "+x.getMessage());
             throw new ITParseException();
         }
     }

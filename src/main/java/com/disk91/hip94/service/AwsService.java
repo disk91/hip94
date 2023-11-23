@@ -381,9 +381,6 @@ public class AwsService {
             synchronized (this) {
                 runningJobs--;
             }
-            // just because we only have 5000 at a time
-            witnessService.commitCache();
-            witnessService.commitCache();
             witnessService.commitCache();
             log.info("IoTPoc - exit completed");
         }

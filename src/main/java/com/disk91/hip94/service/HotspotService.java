@@ -60,7 +60,8 @@ public class HotspotService {
     }
 
     public void commitCache() {
-        heliumHotspotCache.commit(false,5000);
+        // bulk is false, so all element are flushed
+        heliumHotspotCache.commit(false,-1);
     }
 
     // search Hotspot in a zone
