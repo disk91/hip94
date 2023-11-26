@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
-public abstract class ObjectCache<K, T extends ClonnableObject<T>> {
+public abstract class ObjectCache<K, T extends ClonnableObject<T>, S> {
 
     protected class CachedObject<K, T extends ClonnableObject<T>> {
         protected T obj;
@@ -102,6 +102,9 @@ public abstract class ObjectCache<K, T extends ClonnableObject<T>> {
             this.unsaved = unsaved;
         }
     }
+
+    protected S service;
+
     protected ConcurrentHashMap<K, CachedObject<K,T>> cache;
     protected long maxCacheSize;
     protected long cacheSize;
@@ -135,10 +138,10 @@ public abstract class ObjectCache<K, T extends ClonnableObject<T>> {
      * @param maxSize
      */
     public ObjectCache(String name, int maxSize) {
-        this(name,maxSize,-1);
+        this(name,maxSize,-1, null);
     }
 
-    public ObjectCache(String name, int maxSize, long expirationMs ) {
+    public ObjectCache(String name, int maxSize, long expirationMs, S _service ) {
         this.cache = new ConcurrentHashMap<K,CachedObject<K,T>>(maxSize,0.8f);
         this.maxCacheSize = maxSize;
         this.cacheMissStat = 0;
@@ -153,6 +156,8 @@ public abstract class ObjectCache<K, T extends ClonnableObject<T>> {
         this.tooLong = false;
         this.inAsyncSync = false;
         this.inClean = false;
+        this.expirationMs = expirationMs;
+        this.service = _service;
     }
 
     public boolean isTooLong() {
@@ -165,6 +170,10 @@ public abstract class ObjectCache<K, T extends ClonnableObject<T>> {
 
     public boolean isInClean() {
         return inClean;
+    }
+
+    public S getService() {
+        return this.service;
     }
 
     /**

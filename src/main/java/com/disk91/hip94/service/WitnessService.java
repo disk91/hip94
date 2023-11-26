@@ -243,9 +243,9 @@ public class WitnessService {
 
         hotspotService.updateHostspot(beaconner);
 
-        // Need to recompute all the witnesse
-        witnesses.forEach( w -> {
-            hotspotService.updateStats(w.getHotspotId());
+        // Need to recompute all the witnesses but do it only every 30 minutes...
+        witnesses.parallelStream().forEach( w -> {
+            hotspotService.updateStats(w.getHotspotId(),false);
         });
 
         return true;

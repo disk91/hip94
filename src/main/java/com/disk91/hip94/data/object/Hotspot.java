@@ -4,6 +4,7 @@ import com.disk91.hip94.data.object.sub.LatLng;
 import com.disk91.hip94.data.object.sub.RespTimeHist;
 import fr.ingeniousthings.tools.Animal;
 import fr.ingeniousthings.tools.ClonnableObject;
+import fr.ingeniousthings.tools.Now;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
@@ -90,6 +91,8 @@ public class Hotspot implements ClonnableObject<Hotspot> {
     protected RespTimeHist travelTimeHist;
     protected RespTimeHist arrivalPlaceHist;
 
+    protected long lastUpdate = 0;
+
 
     // --
 
@@ -137,6 +140,8 @@ public class Hotspot implements ClonnableObject<Hotspot> {
         this.travelTimeHist.init();
         this.arrivalPlaceHist = new RespTimeHist();
         this.arrivalPlaceHist.init();
+
+        this.lastUpdate= Now.NowUtcMs() - 20*Now.ONE_MINUTE; // so the first update may be in 10 minutes
     }
 
 
@@ -460,5 +465,13 @@ public class Hotspot implements ClonnableObject<Hotspot> {
 
     public void setUtilCoverage(int utilCoverage) {
         this.utilCoverage = utilCoverage;
+    }
+
+    public long getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(long lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 }
