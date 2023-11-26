@@ -55,7 +55,7 @@ public class HotspotService {
             @Override
             public void bulkCacheUpdate(List<Hotspot> objects) {
                 if ( objects != null )
-                    objects.forEach(h -> {
+                    objects.parallelStream().forEach(h -> {
                         this.getService().updateStats(h,true);
                         hotspotsRepository.save(h);
                     });
@@ -203,6 +203,7 @@ public class HotspotService {
 
         // Do not update stats on every call, too long
         if ( !force && (Now.NowUtcMs() - h.getLastUpdate()) < 30*Now.ONE_MINUTE ) return;
+        h.setLastUpdate(Now.NowUtcMs());
 
         // identify unique hotspots
         HashMap<String,Witness> hss = new HashMap<>();

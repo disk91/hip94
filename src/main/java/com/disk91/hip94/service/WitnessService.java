@@ -44,7 +44,9 @@ public class WitnessService {
     }
 
     public void commitCache() {
+        long start = Now.NowUtcMs();
         hotspotService.commitCache();
+        log.info("Commit & Stat Refresh duration: "+(Now.NowUtcMs()-start)+"ms");
     }
 
     // returns true when the beacon has been proceeded vs skipped
@@ -244,6 +246,7 @@ public class WitnessService {
         hotspotService.updateHostspot(beaconner);
 
         // Need to recompute all the witnesses but do it only every 30 minutes...
+        // by the way, this is done between files so here we should never really execute this.
         witnesses.parallelStream().forEach( w -> {
             hotspotService.updateStats(w.getHotspotId(),false);
         });
