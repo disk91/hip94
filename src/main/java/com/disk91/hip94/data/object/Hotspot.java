@@ -92,6 +92,7 @@ public class Hotspot implements ClonnableObject<Hotspot> {
     protected RespTimeHist arrivalPlaceHist;
 
     protected long lastUpdate = 0;
+    protected boolean statsOk = false;
 
 
     // --
@@ -473,5 +474,13 @@ public class Hotspot implements ClonnableObject<Hotspot> {
 
     public void setLastUpdate(long lastUpdate) {
         this.lastUpdate = lastUpdate;
+    }
+
+    public boolean isStatsOk() {
+        return statsOk;
+    }
+
+    public void setStatsOk(boolean statsOk) {
+        this.statsOk = statsOk;
     }
 }

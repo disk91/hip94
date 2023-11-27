@@ -14,11 +14,9 @@ import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 @Service
 public class HotspotService {
@@ -67,20 +65,11 @@ public class HotspotService {
     }
 
     public void commitStats() {
-        long start = Now.NowUtcMs();
-        long last = start;
-        Enumeration<String> all = heliumHotspotCache.list();
-        int i=0;
-        while (all.hasMoreElements()) {
-            String k = all.nextElement();
+        long last = Now.NowUtcMs();
+        Stream<String> stream = Collections.list(heliumHotspotCache.list()).stream();
+        stream.parallel().forEach( k -> {
             this.updateStats(k,true);
-            i++;
-            if ( (Now.NowUtcMs() - last) > 10_000 ) {
-                log.info("CommitStat: "+i);
-                last = Now.NowUtcMs();
-            }
-        }
-        log.info("CommitStat - elements: "+i+" total duration: "+(Now.NowUtcMs()-start)+"ms");
+        });
     }
 
     public void commitCache() {
@@ -211,13 +200,20 @@ public class HotspotService {
     public void updateStats(String hsId, boolean force) {
         try {
             Hotspot h = getOneHotspot(hsId, "",0, 0, 0);
-            this.updateStats(h,force);
+            // in case of force (= commit - not really nice choice)
+            // and stats did not changed, no need to update ... save time
+            if ( !force || !h.isStatsOk() ) {
+                this.updateStats(h, force);
+            }
         } catch ( ITNotFoundException x ) {
             log.warn("Hotspot "+hsId+" not found");
         }
     }
 
     public void updateStats(Hotspot h, boolean force) {
+
+        // if we don't process it mark stats as to be recomputed later
+        h.setStatsOk(false);
 
         // Do not update stats on every call, too long
         if ( !force && (Now.NowUtcMs() - h.getLastUpdate()) < 30*Now.ONE_MINUTE ) return;
@@ -432,7 +428,7 @@ public class HotspotService {
             h.setUtilCoverage(2);
         }
 
-
+        h.setStatsOk(true);
         this.updateHostspot(h);
     }
 
