@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -47,7 +48,7 @@ public class HotspotService {
             @Override
             public void onCacheRemoval(String key, Hotspot obj, boolean batch, boolean last) {
                 if ( obj != null ) {
-                    this.getService().updateStats(obj,true);
+                    //this.getService().updateStats(obj,true);
                     hotspotsRepository.save(obj);
                 }
             }
@@ -56,13 +57,30 @@ public class HotspotService {
             public void bulkCacheUpdate(List<Hotspot> objects) {
                 if ( objects != null )
                     objects.parallelStream().forEach(h -> {
-                        this.getService().updateStats(h,true);
+                        //this.getService().updateStats(h,true);
                         hotspotsRepository.save(h);
                     });
             }
 
         };
 
+    }
+
+    public void commitStats() {
+        long start = Now.NowUtcMs();
+        long last = start;
+        Enumeration<String> all = heliumHotspotCache.list();
+        int i=0;
+        while (all.hasMoreElements()) {
+            String k = all.nextElement();
+            this.updateStats(k,true);
+            i++;
+            if ( (Now.NowUtcMs() - last) > 10_000 ) {
+                log.info("CommitStat: "+i);
+                last = Now.NowUtcMs();
+            }
+        }
+        log.info("CommitStat - elements: "+i+" total duration: "+(Now.NowUtcMs()-start)+"ms");
     }
 
     public void commitCache() {

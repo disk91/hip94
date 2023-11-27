@@ -340,6 +340,7 @@ public class AwsService {
                             current++;
                         }
                     } // end of current file
+                    witnessService.commitStats();
                     witnessService.commitCache();
 
                     // end of file trace

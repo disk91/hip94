@@ -46,7 +46,13 @@ public class WitnessService {
     public void commitCache() {
         long start = Now.NowUtcMs();
         hotspotService.commitCache();
-        log.info("Commit & Stat Refresh duration: "+(Now.NowUtcMs()-start)+"ms");
+        log.info("Commit duration: "+(Now.NowUtcMs()-start)+"ms");
+    }
+
+    public void commitStats() {
+        long start = Now.NowUtcMs();
+        hotspotService.commitStats();
+        log.info("Stat Refresh duration: "+(Now.NowUtcMs()-start)+"ms");
     }
 
     // returns true when the beacon has been proceeded vs skipped
