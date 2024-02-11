@@ -108,16 +108,21 @@ public class HotspotService {
         PageRequest pageRequest = PageRequest.of(0,10);
 
         ArrayList<HotspotLiteRespItf> ret = new ArrayList<>();
-        List<Hotspot> his = hotspotsRepository.findHotspotByAnimalNameLike(name, pageRequest);
-        if ( his.size() == 0 ) {
-            his = hotspotsRepository.findHotspotByAnimalNameStarts(name,pageRequest);
+        List<Hotspot> his = hotspotsRepository.findHotspotByAnimalNameLikeStarts(name, pageRequest).getContent();
+        if (his.isEmpty() && name.length() > 5 ) {
+            // it's possible the term is not on hostpot name start but elsewhere
+            his = hotspotsRepository.findHotspotByAnimalNameLike(name,pageRequest).getContent();
+        }
+        if (his.isEmpty() && name.length() < 10 ) {
+            // it's possible we don't have a word in the search term, look for letter list
+            his = hotspotsRepository.findHotspotByAnimalNameStarts(name,pageRequest).getContent();
         }
         for ( Hotspot hi : his ) {
             HotspotLiteRespItf id = new HotspotLiteRespItf();
             id.init(hi);
             ret.add(id);
         }
-        if ( ret.size() == 0 ) throw new ITNotFoundException();
+        if (ret.isEmpty()) throw new ITNotFoundException();
         return ret;
 
     }
