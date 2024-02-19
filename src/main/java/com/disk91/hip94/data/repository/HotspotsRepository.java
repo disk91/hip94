@@ -23,12 +23,12 @@ public interface HotspotsRepository extends MongoRepository<Hotspot, String> {
     // To use the geo index, we can't use $box but we need to use the polygon representationo in $geometry
     // the box is a closed polygon requiring 5 points
     @Query("{ 'mongoPosition' : { '$geoWithin' : { '$geometry' : {" +
-        " type: \"Polygon\", " +
+        " type: 'Polygon', " +
         " coordinates: " +
         " [ [" +
         "    [?0, ?1], [?0, ?3], [?2, ?3], [?2, ?1], [?0, ?1]" +
         " ] ]" +
-        "} } }")
+        "} } } }")
     public List<Hotspot> findByMongoPositionNearbyBox(double bottomLeftLongitude, double bottomLeftLatitude, double topRightLongitude, double topRightLatitude);
 
     @Query("{ $text : { $search : ?0 } }")
