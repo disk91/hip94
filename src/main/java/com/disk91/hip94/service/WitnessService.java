@@ -65,19 +65,18 @@ public class WitnessService {
         lora_valid_beacon_report_v1 beacon = p.getBeaconReport();
 
         // Update the beaconner
-        String hsBeaconerId = HeliumHelper.pubAddressToName(beacon.getReport().getPubKey());
-        long beaconTimeMs = beacon.getReport().getTimestamp() / 1_000_000;
         LatLng pos = h3.cellToLatLng(Long.parseLong(beacon.getLocation()));
         if (pos == null || ! Gps.isAValidCoordinate(pos.lat, pos.lng) ) {
             return false;
         }
-
         // only process beacon in a given zone if valid
         if (   Gps.isAValidCoordinate(etlConfig.getHeliumZoneLatNW(), etlConfig.getHeliumZoneLonNW() )
             && Gps.isAValidCoordinate(etlConfig.getHeliumZoneLatSE(), etlConfig.getHeliumZoneLonSE() ) ) {
             if ( pos.lat < etlConfig.getHeliumZoneLatSE() || pos.lat > etlConfig.getHeliumZoneLatNW() ) return false;
             if ( pos.lng < etlConfig.getHeliumZoneLonNW() || pos.lng > etlConfig.getHeliumZoneLonSE() ) return false;
         }
+        String hsBeaconerId = HeliumHelper.pubAddressToName(beacon.getReport().getPubKey());
+        long beaconTimeMs = beacon.getReport().getTimestamp() / 1_000_000;
 
         Hotspot beaconner = null;
         try {
@@ -85,6 +84,13 @@ public class WitnessService {
         } catch (ITNotFoundException x) {
             return false;
         }
+
+        // verify the beacon does not have already been proceeded
+        if ( beaconner.getLastBeacon() > beaconTimeMs ) {
+            // already processed
+            return false;
+        }
+        beaconner.setLastBeacon(beaconTimeMs);
 
         int competitors = p.getSelectedWitnessesCount();
         for ( lora_verified_witness_report_v1 v : p.getUnselectedWitnessesList() ) {
@@ -111,6 +117,7 @@ public class WitnessService {
             }
             try {
                 Hotspot hw = hotspotService.getOneHotspot(HeliumHelper.pubAddressToName(v.getReport().getPubKey()), v.getLocation(), wpos.lat, wpos.lng, beaconTimeMs);
+                hw.cleanWitness(beaconner.getHotspotId(),beaconTimeMs);
 
                 w.setHotspotId(beaconner.getHotspotId());
                 w.setH3hex(beacon.getLocation());
@@ -152,6 +159,8 @@ public class WitnessService {
             }
             try {
                 Hotspot hw = hotspotService.getOneHotspot(HeliumHelper.pubAddressToName(v.getReport().getPubKey()), v.getLocation(), wpos.lat, wpos.lng, beaconTimeMs);
+                hw.cleanWitness(beaconner.getHotspotId(),beaconTimeMs);
+
                 w.setHotspotId(beaconner.getHotspotId());
                 w.setH3hex(beacon.getLocation());
                 w.setHotspotRxTime(v.getReport().getTimestamp() / 1_000_000); // Ts at Hostpot Rx

@@ -150,6 +150,7 @@ public class HotspotService {
                 // create a new one
                 hs = new Hotspot();
                 hs.init(hotspotId);
+                hs.setLastBeacon(0);
                 // get location
                 if ( Gps.isAValidCoordinate(lat, lng ) ) {
                     // beacon basically

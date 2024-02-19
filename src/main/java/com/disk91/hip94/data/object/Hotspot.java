@@ -6,6 +6,7 @@ import fr.ingeniousthings.tools.Animal;
 import fr.ingeniousthings.tools.ClonnableObject;
 import fr.ingeniousthings.tools.Now;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.index.CompoundIndexes;
@@ -92,8 +93,11 @@ public class Hotspot implements ClonnableObject<Hotspot> {
     protected RespTimeHist arrivalPlaceHist;
 
     protected long lastUpdate = 0;
+    protected long lastBeacon = -1;
     protected boolean statsOk = false;
 
+    @Transient
+    private long lastKnownBeacon = 0;
 
     // --
 
@@ -151,6 +155,21 @@ public class Hotspot implements ClonnableObject<Hotspot> {
         return null;
     }
 
+
+    public void cleanWitness(String beaconner, long timeRef) {
+        if ( lastKnownBeacon == 0 || lastKnownBeacon > timeRef ) {
+            // clean the witness list removing all the entries older tha given one for that hotspot
+            ArrayList<Witness> ws = new ArrayList<>();
+            for (Witness w : this.witnesses) {
+                if (w.getHotspotId().compareToIgnoreCase(beaconner) != 0 || w.getHeliumRXTime() < (timeRef + 30_000)) {
+                    // keep that one
+                    ws.add(w);
+                    if ( ( w.getHeliumRXTime() - 30_000 ) > lastKnownBeacon ) lastKnownBeacon = ( w.getHeliumRXTime() - 30_000 );
+                }
+            }
+            this.witnesses = ws;
+        }
+    }
 
     // --
 
@@ -482,5 +501,13 @@ public class Hotspot implements ClonnableObject<Hotspot> {
 
     public void setStatsOk(boolean statsOk) {
         this.statsOk = statsOk;
+    }
+
+    public long getLastBeacon() {
+        return lastBeacon;
+    }
+
+    public void setLastBeacon(long lastBeacon) {
+        this.lastBeacon = lastBeacon;
     }
 }
