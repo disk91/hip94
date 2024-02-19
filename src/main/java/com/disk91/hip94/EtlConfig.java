@@ -59,6 +59,9 @@ public class EtlConfig {
     @Value("${iotpoc.history.stopdate}")
     private long iotpocHistoryStopDate;
 
+    @Value("${iotpoc.load.enable:false}")
+    private boolean iotpocLoadEnable;
+
     public long getIotpocHistoryStartDate() {
         return iotpocHistoryStartDate;
     }
@@ -69,6 +72,10 @@ public class EtlConfig {
 
     public long getIotpocHistoryStopDate() {
         return iotpocHistoryStopDate;
+    }
+
+    public boolean isIotpocLoadEnable() {
+        return iotpocLoadEnable;
     }
 
     // ==============================

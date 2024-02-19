@@ -55,6 +55,11 @@ public class AwsService {
     @PostConstruct
     private void initAwsService() {
 
+        if ( ! etlConfig.isIotpocLoadEnable() ) {
+            log.info(">> IoT Poc processing disabled, read only");
+            return;
+        }
+
         if ( etlConfig.getAwsAccessKey().length() < 2 || etlConfig.getAwsSecretKey().length() < 2) {
             log.error("========= CONFIG ERROR ========");
             log.error(">> You need to setup your AWS credentials");
