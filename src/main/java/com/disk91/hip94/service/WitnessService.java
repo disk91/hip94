@@ -117,7 +117,8 @@ public class WitnessService {
             }
             try {
                 Hotspot hw = hotspotService.getOneHotspot(HeliumHelper.pubAddressToName(v.getReport().getPubKey()), v.getLocation(), wpos.lat, wpos.lng, beaconTimeMs);
-                hw.cleanWitness(beaconner.getHotspotId(),beaconTimeMs);
+                // Not needed anymore
+                // hw.cleanWitness(beaconner.getHotspotId(),beaconTimeMs);
 
                 w.setHotspotId(beaconner.getHotspotId());
                 w.setH3hex(beacon.getLocation());
@@ -159,7 +160,8 @@ public class WitnessService {
             }
             try {
                 Hotspot hw = hotspotService.getOneHotspot(HeliumHelper.pubAddressToName(v.getReport().getPubKey()), v.getLocation(), wpos.lat, wpos.lng, beaconTimeMs);
-                hw.cleanWitness(beaconner.getHotspotId(),beaconTimeMs);
+                // not needed anymore
+                // hw.cleanWitness(beaconner.getHotspotId(),beaconTimeMs);
 
                 w.setHotspotId(beaconner.getHotspotId());
                 w.setH3hex(beacon.getLocation());

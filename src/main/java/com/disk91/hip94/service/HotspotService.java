@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -62,6 +63,11 @@ public class HotspotService {
 
         };
 
+    }
+
+    @Scheduled(fixedRateString = "${logging.cache.fixedrate}", initialDelay = 63_000)
+    protected void cacheStatus() {
+       this.heliumHotspotCache.log();
     }
 
     public void commitStats() {
